@@ -1,0 +1,188 @@
+Go - Best practices
+
+Ivan Borshukov
+SAP Labs Bulgaria
+ivan.borshukov@sap.com
+https://botu6.blogspot.com
+@botu6aa
+
+* Packages
+- Represent an idea
+- Remember that their name stands before their functions, e.g.:
+    http.Get("http://google.com")
+    net.Dial("tcp", "localhost:23")
+- util, common, misc do **not* represent an idea
+    // Q: what do these two have in common?
+    util.ComputeFileChecksum
+    util.NewProcessBuilder
+- dot imports are bad!
+    import . util
+
+    ComputeFileChecksum // where does it come from?
+
+* Visiblity
+- Export no more than needed
+- Remember how your methods are accessed
+    http.Get("http://google.com")
+    // instead of
+    http.HTTPGet("http://google.com") 
+
+* Default values
+- Do not rely on default values when returning error
+    func newSomething() {
+        var s something
+            if err := initSomething(s); err != nil {
+                return s, err 
+            }
+    }
+- Do this instead
+    func newSomething() something {
+        var s something
+            if err := initSomething(s); err != nil {
+                return something{}, err
+            }
+    }
+
+* Ifs
+
+- Prefer switch than nested ifs:
+    if a == 1 {
+        // case 1
+    } else if a == 2 {
+        // case 2
+    } else {
+        // oops
+    }
+- Do this instead
+    switch a {
+    case 1:
+        // case 1
+    case 2:
+        // case 2
+    default:
+        // oops?
+    }
+
+* Fors
+
+- Prefer range over explicit iterator
+    for i, x := range a {
+        fmt.Printf("a[%d]=%d\n", i, x)            
+    }
+- It is more clear
+- Some bounds checking is omitted
+
+* Functions
+- Adapters
+    func init() {
+            http.HandleFunc("/", handler)
+    }
+
+    func handler(w http.ResponseWriter, r *http.Request) {
+        err := doThis()
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            log.Printf("handling %q: %v", r.RequestURI, err)
+            return
+        }
+
+        err = doThat()
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            log.Printf("handling %q: %v", r.RequestURI, err)
+            return
+        }
+
+* Function Adapters
+    func init() {
+            http.HandleFunc("/", errorHandler(betterHandler))
+    }
+
+    func errorHandler(f func(http.ResponseWriter, *http.Request) error) http.HandlerFunc {
+        return func(w http.ResponseWriter, r *http.Request) {
+            err := f(w, r)
+            if err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                log.Printf("handling %q: %v", r.RequestURI, err)
+            }
+        }
+    }
+
+    func betterHandler(w http.ResponseWriter, r *http.Request) error {
+        if err := doThis(); err != nil {
+                return fmt.Errorf("doing this: %v", err)
+        }
+
+        if err := doThat(); err != nil {
+                return fmt.Errorf("doing that: %v", err)
+        }
+        return nil
+    }
+
+* Maps
+
+- **Never* rely on map iteration order.
+- Even if you need random order.
+
+* Concurrency
+
+- Use the race detector (-race flag when executing tests)
+- Avoid concurrency in your API. Let the user handle it if she needs it
+- Avoid goroutine leaks
+
+* Interfaces
+
+- Empty interface says nothing!
+- Ask for what you need
+    // this is bad
+    func ReadConfig(fd *os.File) Config {
+        // ...
+    }
+    // do this instead
+    func ReadConfig(r io.Reader) Config {
+        // ...
+    }
+
+* Interfaces
+
+- Give what you have
+    func OpenForRead(path string) (io.Reader, error) {
+        return os.Open(path)
+    }
+    // is not fancy as
+    func OpenForRead(path string) (*os.File, error) {
+        return os.Open(path)
+    }
+- Both give you the chance to
+    r, _ := OpenForRead("config.yml")
+    cfg := ReadConfig(r)
+- But only the second to
+    file, _ := OpenForRead("config.yml")
+    cfg := ReadConfig(file)
+    file.Seek(0, 0)
+
+* Others
+
+- Empty struct
+    x := struct{}{} // takes no space
+
+    // use it to signal for events
+    ready := make(chan struct{})
+    go doSomeWork(ready)
+    <-ready
+
+    // and to implement set
+    set := map[string]struct{}
+
+- Panic only on extreme cases
+- Handle **all* errors, don't ignore them
+- Write documentation - it helps you and others
+- Use example tests to keep you documentation up-to-date
+
+* Code style/arrangement
+- Use gofmt
+- Shorter is better (preserve the meaning, though)
+- Split code into files
+- Split tests from implementation
+- Split documentation from both tests & implementation
+- Importance of code should be inversely proportional to its line number
