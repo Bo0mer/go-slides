@@ -1,0 +1,34 @@
+Go vs Java
+
+Ivan Borshukov
+SAP Labs Bulgaria
+ivan.borshukov@sap.com
+https://botu6.blogspot.com
+@botu6aa
+
+* Common things
+
+- C family (imperative, braces)
+- Statically typed
+- Garbage collected
+- Memory safe (nil references, runtime bounds checks)
+- Variables are always initialized (zero/nil/false)
+- Methods
+- Interfaces
+- Type assertions (instanceof)
+- Reflection
+
+* Differences
+
+- Programs compile to machine code. There's no VM.
+- Statically linked binaries
+- Control over memory layout
+- Function values and lexical closures
+- Built-in strings (UTF-8)
+- Built-in generic maps and arrays/slices
+- Built-in concurrency
+- No {classes, constructors, overloading, final, inheritance, exceptions, annotations, generics}
+
+* Less is exponentially more
+
+- Rob Pike, 2012 [[https://commandcenter.blogspot.bg/2012/06/less-is-exponentially-more.html]]
