@@ -178,6 +178,8 @@ https://botu6.blogspot.com
 - Handle **all* errors, don't ignore them
 - Write documentation - it helps you and others
 - Use example tests to keep you documentation up-to-date
+- Godoc is your friend
+- Use fmt.Printf("%q", str) instead of fmt.Printf("'%s'", str)
 
 * Code style/arrangement
 - Use gofmt
