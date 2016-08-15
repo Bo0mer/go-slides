@@ -161,6 +161,21 @@ https://botu6.blogspot.com
     cfg := ReadConfig(file)
     file.Seek(0, 0)
 
+* Dependencies
+
+- Make them explicit
+    func (f *foo) process() {
+        fmt.Fprintf(f.Output, "start\n") // OK, no state here.
+        result := f.Bar.compute()
+        log.Printf("bar: %v", result) // Bad.
+    }
+- Do this instead
+    func (f *foo) process() {
+        fmt.Fprintf(f.Output, "start\n")
+        result := f.Bar.compute()
+        f.Logger.Printf("bar: %v", result) // Better.
+    }
+
 * Others
 
 - Empty struct
