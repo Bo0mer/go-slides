@@ -29,14 +29,14 @@ https://botu6.blogspot.com
 
 * Default values
 - Do not rely on default values when returning error
-    func newSomething() {
+    func newSomething() (something, error) {
         var s something
             if err := initSomething(s); err != nil {
                 return s, err 
             }
     }
 - Do this instead
-    func newSomething() something {
+    func newSomething() (something, error) {
         var s something
             if err := initSomething(s); err != nil {
                 return something{}, err
