@@ -1,0 +1,33 @@
+
+Error handling in Go
+
+Ivan Borshukov
+SAP Labs Bulgaria
+ivan.borshukov@sap.com
+https://botu6.blogspot.com
+@botu6aa
+
+* Errors
+
+- Go does not have exceptions
+- It has error type
+
+    type error interface {
+        Error() string
+    } 
+
+- An error variable represents any *value* that can describe itself as a string
+
+* Handling errors
+
+- Naive approach
+
+    fd, err := os.Open("might_error.txt")
+    if err != nil {
+        return err
+    }
+
+* Handling errors
+
+
+

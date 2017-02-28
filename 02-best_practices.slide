@@ -196,6 +196,10 @@ https://botu6.blogspot.com
 - Godoc is your friend
 - Use fmt.Printf("%q", str) instead of fmt.Printf("'%s'", str)
 
+* Others
+- Make the default value useful
+// TODO(ivan): add code example (with nil?)
+
 * Code style/arrangement
 - Use gofmt
 - Shorter is better (preserve the meaning, though)
