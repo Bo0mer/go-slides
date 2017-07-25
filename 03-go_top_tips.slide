@@ -1,0 +1,160 @@
+Go Top Tips
+
+Ivan Borshukov
+Chaos Group
+ivan.borshukov@chaosgroup.com
+https://medium.com/@Bo0mer
+@botu6aa
+
+* Default values
+- Do not rely on default values when returning error
+    func newSomething() (something, error) {
+        var s something
+        if err := initSomething(s); err != nil {
+            return s, err 
+        }
+    }
+- Do this instead
+    func newSomething() (something, error) {
+        var s something
+        if err := initSomething(s); err != nil {
+            return something{}, err
+        }
+    }
+
+* Maps
+
+- **Never* rely on map iteration order.
+- Even if you need random order.
+
+* Interfaces
+
+- Empty interface says nothing!
+- Ask for what you need
+    // this is bad
+    func ReadConfig(fd *os.File) Config {
+        // ...
+    }
+    // do this instead
+    func ReadConfig(r io.Reader) Config {
+        // ...
+    }
+
+* Interfaces
+
+- Give what you have
+    func OpenForRead(path string) (io.Reader, error) {
+        return os.Open(path)
+    }
+    // is not fancy as
+    func OpenForRead(path string) (*os.File, error) {
+        return os.Open(path)
+    }
+- Both give you the chance to
+    r, _ := OpenForRead("config.yml")
+    cfg := ReadConfig(r)
+- But only the second to
+    file, _ := OpenForRead("config.yml")
+    cfg := ReadConfig(file)
+    file.Seek(0, 0)
+
+* Interfaces
+- Client package defines the interface.
+    package consumer
+    
+    var Doer interface {
+        Do(req *http.Request) (*http.Response, error)
+    }
+
+    func DoWith(doer Doer) {
+        // do work with doer.
+    }
+
+- Implementations exposes a concrete type.
+    package http
+
+    type Client struct {
+        // ...
+    }
+
+    func (c *Client) Do(req *Request) (*Response, error) {
+        // ...
+    }
+
+* Dependencies
+
+- Make them explicit
+    func (f *foo) process() {
+        fmt.Fprintf(f.Output, "start\n") // OK, no state here.
+        result := f.Bar.compute()
+        log.Printf("bar: %v", result) // Bad.
+    }
+- Do this instead
+    func (f *foo) process() {
+        fmt.Fprintf(f.Output, "start\n")
+        result := f.Bar.compute()
+        f.Logger.Printf("bar: %v", result) // Better.
+    }
+- Ofcourse, `f.Logger` is an *interface*.
+
+* No globals
+- Packages store declarations
+- Components store state
+
+
+* Goroutines
+- Never start a goroutine without knowing when and how it'll exit.
+
+* GoDoc
+- Use godoc locally
+    $ godoc -http :6060
+- Review your package's API. Are there exported symbols without a description?
+
+* Race detector
+- Always use the race detector in development
+    $ go build -race
+    $ go test -race
+- More info on [[https://blog.golang.org/race-detector]]
+
+* Mutexes
+- Do this
+    type T struct {
+        s string
+        mu sync.Mutex // guards
+        i int
+    }
+- *Not* this
+    type T struct {
+        mu *sync.Mutex
+        s string
+        i int
+    }
+- Make it clear what is being guarded by the mutex
+- Store the object, not a pointer
+
+* Log or return
+- Log an error or return it
+- Don't do both
+
+* Example tests
+- Write example tests
+- Place them in external test files. This way, the code can be reused directly.
+
+* Time
+- Do this
+    t1 := time.Now()
+    // do some work
+    d := time.Since(t1)
+- *Not* this
+    t1 := time.Now()
+    // do some work
+    d := time.Now().Sub(t1)
+
+* Memory status
+- Operating systems misreport application memory usage.
+- Use `runtime.ReadMemStats` to get the right numbers.
+
+* Internal packages
+- Use them to prototype extracting code into a library.
+- Use them to hide packages that you do not want to expose.
+- More info [[https://docs.google.com/document/d/1e8kOo3r51b2BWtTs_1uADIA5djfXhPT36s6eHVRIvaU][in the design document]]
