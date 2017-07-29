@@ -6,15 +6,36 @@ ivan.borshukov@chaosgroup.com
 https://medium.com/@Bo0mer
 @botu6aa
 
-* Default values
-- Do not rely on default values when returning error
+* Agenda
+- Functions
+- Interfaces
+- Maps
+- Other tips
+- Q&A
+
+* Functions
+
+Do not assume anything about results accompanied with error.
+
+.play ./code/03/funcs01/main.go /^func main/,/^} 
+
+Do this instead.
+
+.play ./code/03/funcs02/main.go /^func main/,/^} 
+
+* Functions
+
+Do not rely on default values when returning error.
+
     func newSomething() (something, error) {
         var s something
         if err := initSomething(s); err != nil {
-            return s, err 
+            return s, err // State of s is unknown.
         }
     }
-- Do this instead
+
+Do this instead.
+
     func newSomething() (something, error) {
         var s something
         if err := initSomething(s); err != nil {
@@ -22,15 +43,46 @@ https://medium.com/@Bo0mer
         }
     }
 
-* Maps
+* Functions
 
-- **Never* rely on map iteration order.
-- Even if you need random order.
+Do not use bare returns.
+
+- Can lead to subtle bugs
+
+.play code/03/funcs03/main.go /^func newSomething/,/^} 
+
+- Reduce readability and increase cognitive load
+
+.play code/03/funcs04/main.go /^func main/,/^} 
+
+* Functions
+
+Do use named results to aid your documentation.
+
+    // Location returns the caller's geolocation coordinates.
+    func Location() (float64, float64)
+
+Is not as good as
+
+    // Location returns the caller's geolocation coordinates.
+    func Location() (lat float64, lng float64)
+
+Also helps when using GoDoc.
 
 * Interfaces
 
-- Empty interface says nothing!
-- Ask for what you need
+Empty interface says nothing!
+
+
+Exceptions
+
+- Dealing with unknown data (e.g. JSON encoding/decoding)
+- Guard with type assertions
+
+* Interfaces
+
+Ask for what you need.
+
     // this is bad
     func ReadConfig(fd *os.File) Config {
         // ...
@@ -42,7 +94,8 @@ https://medium.com/@Bo0mer
 
 * Interfaces
 
-- Give what you have
+Give what you have.
+
     func OpenForRead(path string) (io.Reader, error) {
         return os.Open(path)
     }
@@ -50,16 +103,22 @@ https://medium.com/@Bo0mer
     func OpenForRead(path string) (*os.File, error) {
         return os.Open(path)
     }
-- Both give you the chance to
+
+Both give you the chance to read.
+
     r, _ := OpenForRead("config.yml")
     cfg := ReadConfig(r)
-- But only the second to
+
+But only the second to seek.
+
     file, _ := OpenForRead("config.yml")
     cfg := ReadConfig(file)
     file.Seek(0, 0)
 
 * Interfaces
-- Client package defines the interface.
+
+Client [package] defines the interface.
+
     package consumer
     
     var Doer interface {
@@ -70,7 +129,8 @@ https://medium.com/@Bo0mer
         // do work with doer.
     }
 
-- Implementations exposes a concrete type.
+Implementations exposes a concrete type.
+
     package http
 
     type Client struct {
@@ -80,6 +140,12 @@ https://medium.com/@Bo0mer
     func (c *Client) Do(req *Request) (*Response, error) {
         // ...
     }
+
+* Functions + Interfaces
+
+Do not return a concrete error type.
+
+.play -edit ./code/03/funcs05/main.go /START OMIT/,/END OMIT/
 
 * Dependencies
 
@@ -97,24 +163,50 @@ https://medium.com/@Bo0mer
     }
 - Ofcourse, `f.Logger` is an *interface*.
 
+
+* Maps
+
+- **Never* rely on map iteration order. Even if you need random order.
+- You can read from a nil map.
+
+.play ./code/03/maps01/main.go /^func main/,/^} 
+
+* Maps
+
+- You can not take the address of any element in a map.
+
+.play ./code/03/maps02/main.go /^func main/,/^} 
+
+* Maps
+
+- Do not use interfaces as map keys.
+
+.play -edit ./code/03/maps03/main.go /START OMIT/,/END OMIT/
+
 * No globals
 - Packages store declarations
 - Components store state
 
-
 * Goroutines
-- Never start a goroutine without knowing when and how it'll exit.
+Never start a goroutine without knowing when and how it'll exit.
+
+- Use a `context.Context` to trigger cancellation.
+- Use a `chan` to trigger cancellation or to wait for termination.
+- Use a `sync.WaitGroup` to wait for termination.
+- Provide a `Close` method, if it is started by a component.
+- ...
+
 
 * GoDoc
-- Use godoc locally
+- Use godoc locally.
     $ godoc -http :6060
-- Review your package's API. Are there exported symbols without a description?
+- Review [[http://localhost:6060/pkg/net/http][your package's API]]. Are there exported symbols without a description?
 
 * Race detector
-- Always use the race detector in development
+- Always use the race detector in development.
     $ go build -race
     $ go test -race
-- More info on [[https://blog.golang.org/race-detector]]
+- More info on [[https://blog.golang.org/race-detector]].
 
 * Mutexes
 - Do this
@@ -129,16 +221,26 @@ https://medium.com/@Bo0mer
         s string
         i int
     }
-- Make it clear what is being guarded by the mutex
-- Store the object, not a pointer
 
-* Log or return
-- Log an error or return it
-- Don't do both
+- Make it clear what is being guarded by the mutex.
+- Store the object, not a pointer.
+
+* Log or return errors.
+- Log an error or return it.
+- Don't do both.
+
+Exceptions
+
+- {Error,Debug} logging middleware
 
 * Example tests
-- Write example tests
+
+- Write example tests.
 - Place them in external test files. This way, the code can be reused directly.
+
+.play -edit ./code/03/examples/01/example_test.go
+
+- Appears in [[http://godoc.org/sort#example-Ints][GoDoc]].
 
 * Time
 - Do this
