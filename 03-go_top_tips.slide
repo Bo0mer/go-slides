@@ -285,6 +285,11 @@ Exceptions
 - Use them to hide packages that you do not want to expose.
 - More info [[https://docs.google.com/document/d/1e8kOo3r51b2BWtTs_1uADIA5djfXhPT36s6eHVRIvaU][in the design document]]
 
+* Getting goroutine stack traces
+
+    $ go run main.go
+    Ctrl-\
+
 * Finding minimum of two non-negative numbers
 
 .play -edit ./code/03/min/min.go
