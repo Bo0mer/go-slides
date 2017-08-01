@@ -10,6 +10,7 @@ https://medium.com/@Bo0mer
 - Functions
 - Interfaces
 - Maps
+- Slices and arrays
 - Other tips
 - Q&A
 
@@ -189,6 +190,32 @@ Do not return a concrete error type.
 - Do not use interfaces as map keys.
 
 .play -edit ./code/03/maps03/main.go /START OMIT/,/END OMIT/
+
+* Slices and arrays
+
+Will this program exit?
+
+.play -edit ./code/03/slicearray02/main.go
+
+* Slices and arrays
+
+Range-ing is always using a copy.
+
+.play -edit ./code/03/slicearray01/main.go
+
+* Slices and arrays
+
+Range-ing is always using a copy.
+
+.play -edit ./code/03/slicearray03/main.go /START OMIT/,/END OMIT/
+
+* Slices and arrays
+
+Range-ing is always using a copy. Even when you're ranging over an array.
+
+.play -edit ./code/03/slicearray04/main.go
+
+- How many ways to avoid it can you point?
 
 * No globals
 - Packages store declarations
