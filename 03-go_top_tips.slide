@@ -69,10 +69,13 @@ Is not as good as
 
 Also helps when using GoDoc.
 
-* Interfaces
+* Functions
 
-Empty interface says nothing!
+Prefer synchronous APIs.
 
+- Easier to reason about.
+- If concurrency is needed, it can be added on top.
+- If concurrency is *not* needed, it is hard to take it away.
 
 Exceptions
 
@@ -141,6 +144,11 @@ Implementations exposes a concrete type.
         // ...
     }
 
+
+* Interfaces
+
+Empty interface says nothing!
+
 * Functions + Interfaces
 
 Do not return a concrete error type.
@@ -161,8 +169,7 @@ Do not return a concrete error type.
         result := f.Bar.compute()
         f.Logger.Printf("bar: %v", result) // Better.
     }
-- Ofcourse, `f.Logger` is an *interface*.
-
+- Of course, `f.Logger` is an *interface*.
 
 * Maps
 
@@ -242,16 +249,6 @@ Exceptions
 
 - Appears in [[http://godoc.org/sort#example-Ints][GoDoc]].
 
-* Time
-- Do this
-    t1 := time.Now()
-    // do some work
-    d := time.Since(t1)
-- *Not* this
-    t1 := time.Now()
-    // do some work
-    d := time.Now().Sub(t1)
-
 * Memory status
 - Operating systems misreport application memory usage.
 - Use `runtime.ReadMemStats` to get the right numbers.
@@ -260,3 +257,7 @@ Exceptions
 - Use them to prototype extracting code into a library.
 - Use them to hide packages that you do not want to expose.
 - More info [[https://docs.google.com/document/d/1e8kOo3r51b2BWtTs_1uADIA5djfXhPT36s6eHVRIvaU][in the design document]]
+
+* Finding minimum of two non-negative numbers
+
+.play -edit ./code/03/min/min.go
