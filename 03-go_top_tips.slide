@@ -52,9 +52,13 @@ Do not use bare returns.
 
 .play code/03/funcs03/main.go /^func newSomething/,/^} 
 
+* Functions
+
+Do not use bare returns.
+
 - Reduce readability and increase cognitive load
 
-.play code/03/funcs04/main.go /^func main/,/^} 
+.play code/03/funcs04/main.go /START OMIT/,/END OMIT/
 
 * Functions
 
