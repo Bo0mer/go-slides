@@ -193,8 +193,12 @@ Validating dynamic page content
     [Fail] My Go web page when viewing it [It] should display Gopher greeting
     /Users/ivan/workspace/go-slides/code/05/testing/showcase_test.go:44
 
-* Running it in Docker
+* Further options
 
-todo add dockerfile
+- Running on a VM
+- Running in a container (e.g. Docker) (TODO: Add link to docker file)
+- Running on an Android device (Not tested)
 
 * Q&A
+
+Any qestions?
