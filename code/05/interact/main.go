@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -68,7 +69,9 @@ func printImage(s *agouti.Selection) {
 		return
 	}
 
-	img2txt := exec.Command("img2txt.py", tmpfile.Name(), "--maxLen=100", "--targetAspect=0.4", "--ansi")
+	img2txt := exec.Command("img2txt", "-f", "ansi", tmpfile.Name())
 	img2txt.Stdout = os.Stdout
-	img2txt.Run()
+	if err := img2txt.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "error printing image: %v\n", err)
+	}
 }

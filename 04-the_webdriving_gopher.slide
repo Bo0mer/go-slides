@@ -9,7 +9,7 @@ https://medium.com/@Bo0mer
 * Agenda
 - What is WebDriving
 - How to do it from Go
-- Driving without seat belts
+- Testing while driving
 - Q&A
 
 * What is WebDriving
@@ -74,7 +74,7 @@ Changing the driver is easy.
 
 * Supported page operations
 
-* Searching
+* Locating elements
 
     func (s *Page) All(selector string) *MultiSelection
     func (s *Page) AllByButton(text string) *MultiSelection
@@ -124,16 +124,10 @@ Useful for testing sessions, etc.
     func (p *Page) Size(width, height int) error
     func (p *Page) Screenshot(filename string) error
     func (p *Page) HTML() (string, error)
-    func (p *Page) RunScript(body string, arguments map[string]interface{}, result
+    func (p *Page) RunScript(body string, arguments map[string]interface{}, result interface{}) error
 
 And many more!
  
-* Taking screenshots
-
-.play -edit code/05/screenshot/main.go /START OMIT/,/END OMIT/
-
-* Executing arbitary JavaScript
-
 * Testing with ginkgo & gomega
 
 - Ginkgo - BDD-style Go testing framework built to help you efficiently write expressive and comprehensive tests.
@@ -184,5 +178,9 @@ Validating dynamic page content
 
     [Fail] My Go web page when viewing it [It] should display Gopher greeting
     /Users/ivan/workspace/go-slides/code/05/testing/showcase_test.go:44
+
+* Running it in Docker
+
+todo add dockerfile
 
 * Q&A
