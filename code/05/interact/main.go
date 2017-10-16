@@ -23,7 +23,18 @@ func main() {
 	}
 	defer driver.Stop()
 
-	page, err := driver.NewPage()
+	page, err := agouti.NewPage(driver.URL(), agouti.Desired(agouti.Capabilities{
+		"chromeOptions": map[string][]string{
+			"args": []string{
+				"headless",
+				// There is no GPU on our Ubuntu box.
+				"disable-gpu",
+				// Sandbox requires namespace permissions that we don't have
+				// on a container.
+				"no-sandbox",
+			},
+		},
+	}))
 	if err != nil {
 		log.Fatal("failed to open page:", err)
 	}

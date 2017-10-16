@@ -25,6 +25,20 @@ browsers.
 
 .image img/webdriver_small.png
 
+* WebDriver and Chrome example
+
+Basically you're controlling the browser.
+
+    driver = webdriver.Chrome('/path/to/chromedriver')
+    driver.get('http://www.google.com/xhtml');
+    search_box = driver.find_element_by_name('q')
+    search_box.send_keys('ChromeDriver')
+    search_box.submit()
+    time.sleep(5) # Let the user actually see something!
+    driver.quit()
+
+.caption Modified from [[https://sites.google.com/a/chromium.org/chromedriver/getting-started][Getting started with WebDriver for Chrome]]
+
 * How to do it from Go
 
 You need a WebDriver client implementation.
@@ -32,16 +46,19 @@ You need a WebDriver client implementation.
 * Agouti
 
 .image img/agouti.png
+.caption _Agouti_ [[https://github.com/sclevine/agouti][on Github]]
 
-* Basic usage example
+* Let's do it in Go!
 
-.play -edit code/05/basic.go /^func main/,/^}/
+.play -edit code/05/basic.go 
 
-* Inambigousteracting with components
+* Searching for Gophers
+
+'cause we can do it better
 
 .play -edit code/05/interact/main.go /START OMIT/,/END OMIT/
 
-* Available drivers
+* Available driver implementations
     func ChromeDriver(options ...Option) *WebDriver
     func EdgeDriver(options ...Option) *WebDriver
     func NewWebDriver(url string, command []string, options ...Option) *WebDriver
@@ -72,6 +89,10 @@ Changing the driver is easy.
         }
     }
 
+* How It's Made?
+
+.code code/05/internals/driver.go /START OMIT/,/END OMIT/
+
 * Supported page operations
 
 * Locating elements
@@ -94,6 +115,8 @@ Also contains methods for locating the first or unique elements.
         }
     }
 
+Same holds for ***MultiSelection*.
+
 * Interaction
     func (p *Page) CancelPopup() error
     func (p *Page) ConfirmPopup() error
@@ -110,7 +133,7 @@ Popups allow downloading or uploading of files, etc.
     func (p *Page) ClearCookies() error
     func (p *Page) SetCookie(cookie *http.Cookie) error
 
-Useful for testing sessions, etc.
+Useful for testing or faking sessions, etc.
 
 * Navigating
     func (p *Page) URL() (string, error)
