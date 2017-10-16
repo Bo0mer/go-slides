@@ -1,0 +1,188 @@
+The WebDriving Gopher
+
+Ivan Borshukov
+Chaos Group
+ivan.borshukov@chaosgroup.com
+https://medium.com/@Bo0mer
+@botu6aa
+
+* Agenda
+- What is WebDriving
+- How to do it from Go
+- Driving without seat belts
+- Q&A
+
+* What is WebDriving
+
+* WebDriver
+
+WebDriver is a remote control interface that enables introspection and control
+of user agents.
+
+It provides a platform- and language-neutral wire protocol as
+a way for out-of-process programs to remotely instruct the behavior of web
+browsers.
+
+.image img/webdriver_small.png
+
+* How to do it from Go
+
+You need a WebDriver client implementation.
+
+* Agouti
+
+.image img/agouti.png
+
+* Basic usage example
+
+.play -edit code/05/basic.go /^func main/,/^}/
+
+* Inambigousteracting with components
+
+.play -edit code/05/interact/main.go /START OMIT/,/END OMIT/
+
+* Available drivers
+    func ChromeDriver(options ...Option) *WebDriver
+    func EdgeDriver(options ...Option) *WebDriver
+    func NewWebDriver(url string, command []string, options ...Option) *WebDriver
+    func PhantomJS(options ...Option) *WebDriver
+    func Selendroid(jarFile string, options ...Option) *WebDriver
+    func Selenium(options ...Option) *WebDriver
+
+* Available drivers
+
+Changing the driver is easy.
+
+    func interact(d *agouti.WebDriver) {
+        page, err := d.NewPage()
+        // do your job...
+    }
+
+    func runInteraction() {
+        if !headlessOnly {
+            interact(chromeDriver) 
+            interact(seleniumDriver)
+        }
+
+        if windowsOnly {
+            interact(edgeDriver)
+        }
+        if mobile {
+            interact(selendroidDriver)
+        }
+    }
+
+* Supported page operations
+
+* Searching
+
+    func (s *Page) All(selector string) *MultiSelection
+    func (s *Page) AllByButton(text string) *MultiSelection
+    func (s *Page) AllByClass(text string) *MultiSelection
+    func (s *Page) AllByID(text string) *MultiSelection
+    func (s *Page) AllByLabel(text string) *MultiSelection
+    func (s *Page) AllByLink(text string) *MultiSelection
+    func (s *Page) AllByName(name string) *MultiSelection
+    func (s *Page) AllByXPath(selector string) *MultiSelection
+
+Also contains methods for locating the first or unique elements.
+
+    q := page.FindByName("q") // or FirstByName
+    if elems, err := q.Elements(); err != nil {
+        if len(elems) != 1 {
+            log.Fatal("element missing or ambiguous")
+        }
+    }
+
+* Interaction
+    func (p *Page) CancelPopup() error
+    func (p *Page) ConfirmPopup() error
+    func (p *Page) EnterPopupText(text string) error
+    func (p *Page) Click(event Click, button Button) error
+    func (p *Page) DoubleClick() error
+    func (p *Page) MoveMouseBy(xOffset, yOffset int) error
+
+Popups allow downloading or uploading of files, etc.
+
+* Cookies
+    func (p *Page) GetCookies() ([]*http.Cookie, error)
+    func (p *Page) DeleteCookie(name string) error
+    func (p *Page) ClearCookies() error
+    func (p *Page) SetCookie(cookie *http.Cookie) error
+
+Useful for testing sessions, etc.
+
+* Navigating
+    func (p *Page) URL() (string, error)
+    func (p *Page) Navigate(url string) error
+    func (p *Page) Back() error
+    func (p *Page) Forward() error
+    func (p *Page) Refresh() error
+
+
+* Others
+    func (p *Page) Size(width, height int) error
+    func (p *Page) Screenshot(filename string) error
+    func (p *Page) HTML() (string, error)
+    func (p *Page) RunScript(body string, arguments map[string]interface{}, result
+
+And many more!
+ 
+* Taking screenshots
+
+.play -edit code/05/screenshot/main.go /START OMIT/,/END OMIT/
+
+* Executing arbitary JavaScript
+
+* Testing with ginkgo & gomega
+
+- Ginkgo - BDD-style Go testing framework built to help you efficiently write expressive and comprehensive tests.
+- Gomega - Ginkgo's preferred matcher/assertion library.
+
+How it works?
+
+- Describe a feature or functionality
+- Specify context around the test case
+- Make simple assertions
+
+    Describe("multiply", func() {
+        Context("positive numbers", func() {
+            It("should return positive number", func() {
+                Ω(multiply(2, 3)).Should(BeGreaterThan(0))
+            })
+        })
+    })
+
+* Example
+
+Setup and title validation
+
+.code code/05/testing/showcase_test.go /START1 OMIT/,/END1 OMIT/
+
+* Example
+
+Validating page content
+
+.code code/05/testing/showcase_test.go /START2 OMIT/,/END2 OMIT/
+    $ ginkgo -v -focus "loading message"
+    My Go web page when viewing it
+      should display loading message
+      /Users/ivan/workspace/go-slides/code/05/testing/showcase_test.go:34
+    •S
+    Ran 1 of 3 Specs in 1.583 seconds
+    SUCCESS! -- 1 Passed | 0 Failed | 0 Pending | 2 Skipped PASS
+
+* Example
+
+Validating dynamic page content
+
+.code code/05/testing/showcase_test.go /START3 OMIT/,/END3 OMIT/
+
+    $ ginkgo -v -focus "greeting"
+
+    Summarizing 1 Failure:
+
+    [Fail] My Go web page when viewing it [It] should display Gopher greeting
+    /Users/ivan/workspace/go-slides/code/05/testing/showcase_test.go:44
+
+* Q&A
