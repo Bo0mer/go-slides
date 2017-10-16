@@ -1,0 +1,27 @@
+<style>
+iframe {
+    width: 800px;
+    height: 600px;
+    border-radius: 25px;
+    border: 2px solid #73AD21;
+    padding: 20px;
+}
+</style>
+
+<script>
+window.onload = function() {
+    var refresherButton = document.getElementById('iframeRefresher');
+    if (refresherButton.addEventListener)
+        refresherButton.addEventListener('click', refreshIframe, false);
+    else
+        refresherButton.attachEvent('click', refreshIframe);
+}
+
+function refreshIframe() {
+    var ifr = document.getElementsByName('Right')[0];
+    ifr.src = ifr.src;
+}
+</script>
+
+<button id="iframeRefresher">Refresh Page</button><br>
+<iframe name="Right" src="code/05/testing/page.html"></iframe>

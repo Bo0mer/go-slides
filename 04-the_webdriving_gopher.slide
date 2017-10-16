@@ -127,6 +127,16 @@ Useful for testing sessions, etc.
     func (p *Page) RunScript(body string, arguments map[string]interface{}, result interface{}) error
 
 And many more!
+
+* Real-world scenarios
+
+- Collecting data
+.image img/moving_gopher.png _ 160
+- Testing
+.image img/this_is_fine.png _ 360
+
+.caption _Gophers_ by [[https://github.com/ashleymcnamara/gophers][Ashley McNamara]]
+
  
 * Testing with ginkgo & gomega
 
@@ -146,6 +156,10 @@ How it works?
             })
         })
     })
+
+* Our startup's page
+
+.html code/05/testing/page_frame.html
 
 * Example
 
