@@ -1,0 +1,120 @@
+Error handling in Go
+
+Ivan Borshukov
+Chaos Group
+ivan.borshukov@chaosgroup.com
+@botu6aa
+
+* Agenda
+- What are errors
+- Types of errors
+- Propagating context information
+- Q&A
+
+* What are errors
+
+    // The error built-in interface type is the conventional interface for
+    // representing an error condition, with the nil value representing no error.
+    type error interface {
+        Error() string
+    }
+
+Carried by an interface type.
+
+Representing error condition.
+
+* Sentinel errors
+
+    // EOF is the error returned by Read when no more input is available. ...
+    var EOF = errors.New("EOF")
+
+- Signal specific condition, e.g. io.EOF, syscall.ENOENT
+- Caller must compare the result to exact predeclared value
+- Need to be exported, thus become part of the package's API
+- Create a dependency between two packages
+
+* Error types
+
+    // Error reports an error and the operation and URL that caused it.
+    type Error struct {
+        Op  string
+        URL string
+        Err error
+    }
+
+    func (e *Error) Error() string { return e.Op + " " + e.URL + ": " + e.Err.Error() }
+
+- Type that implements the error interface
+- Allow wrapping underlying errors and providing more context
+- Need to be exported, thus become part of the package's API
+
+* Error types
+
+- Requires type assertion to extract extra context from the error
+
+    func isDeadlineExceeded(err error) bool {
+        if v, ok := err.(*url.Error); ok {
+            if v.Err == context.DeadlineExceeded {
+                return true
+            }
+        }
+        return false
+    }
+ 
+* Opaque errors
+
+- You know nothing but that an error have occurred
+- Just return the error without assuming anything about its contents
+
+    import “github.com/pkg/foo”
+
+    func fn() error {
+            val, err := foo.Foo()
+            if err != nil {
+                    return err
+            }
+            // use val
+    }
+
+- Foo's author has the flexibility to change concrete returned values or add annotation
+
+* Acting on specific opaque errors
+
+- Assert behaviour, not value or type
+
+.play -edit code/05/temp.go /START OMIT/,/END OMIT/
+
+
+- Does not introduce pacakge dependency
+- Can be used with net, net/http, net/url, context, etc.
+
+* Provoding context by annotating errors values
+
+* Why?
+
+.image img/no_such_file_error.png _ 480
+
+* Donovan and Kernighan’s The Go Programming Language way
+
+- Using fmt.Errorf
+
+.play -edit code/05/annotate1.go /START OMIT/,/END OMIT/
+
+- Incompatible with the use of sentinel error values or type assertions
+- Destroys the original error and any context associated with it
+- No stacktrace or Go source file information
+
+* Dave Cheney's way
+
+- Using github.com/pkg/errors
+
+.play -edit code/05/annotate2.go /START OMIT/,/END OMIT/
+
+- Provides stacktrace and Go source file information
+- Preservers the origina error
+
+.play -edit code/05/annotate3.go /START OMIT/,/END OMIT/
+
+* Q&A
+
+Any qestions?
