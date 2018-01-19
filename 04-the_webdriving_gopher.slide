@@ -50,13 +50,13 @@ You need a WebDriver client implementation.
 
 * Let's do it in Go!
 
-.play -edit code/05/basic.go 
+.play -edit code/04/basic.go
 
 * Searching for Gophers
 
 'cause we can do it better
 
-.play -edit code/05/interact/main.go /START OMIT/,/END OMIT/
+.play -edit code/04/interact/main.go /START OMIT/,/END OMIT/
 
 * Available driver implementations
     func ChromeDriver(options ...Option) *WebDriver
@@ -77,7 +77,7 @@ Changing the driver is easy.
 
     func runInteraction() {
         if !headlessOnly {
-            interact(chromeDriver) 
+            interact(chromeDriver)
             interact(seleniumDriver)
         }
 
@@ -91,7 +91,7 @@ Changing the driver is easy.
 
 * How It's Made?
 
-.code code/05/internals/driver.go /START OMIT/,/END OMIT/
+.code code/04/internals/driver.go /START OMIT/,/END OMIT/
 
 * Supported page operations
 
@@ -160,7 +160,7 @@ And many more!
 
 .caption _Gophers_ by [[https://github.com/ashleymcnamara/gophers][Ashley McNamara]]
 
- 
+
 * Testing with ginkgo & gomega
 
 - Ginkgo - BDD-style Go testing framework built to help you efficiently write expressive and comprehensive tests.
@@ -182,23 +182,23 @@ How it works?
 
 * Our startup's page
 
-.html code/05/testing/page_frame.html
+.html code/04/testing/page_frame.html
 
 * Example
 
 Setup and title validation
 
-.code code/05/testing/showcase_test.go /START1 OMIT/,/END1 OMIT/
+.code code/04/testing/showcase_test.go /START1 OMIT/,/END1 OMIT/
 
 * Example
 
 Validating page content
 
-.code code/05/testing/showcase_test.go /START2 OMIT/,/END2 OMIT/
+.code code/04/testing/showcase_test.go /START2 OMIT/,/END2 OMIT/
     $ ginkgo -v -focus "loading message"
     My Go web page when viewing it
       should display loading message
-      /Users/ivan/workspace/go-slides/code/05/testing/showcase_test.go:34
+      /Users/ivan/workspace/go-slides/code/04/testing/showcase_test.go:34
     •S
     Ran 1 of 3 Specs in 1.583 seconds
     SUCCESS! -- 1 Passed | 0 Failed | 0 Pending | 2 Skipped PASS
@@ -207,14 +207,14 @@ Validating page content
 
 Validating dynamic page content
 
-.code code/05/testing/showcase_test.go /START3 OMIT/,/END3 OMIT/
+.code code/04/testing/showcase_test.go /START3 OMIT/,/END3 OMIT/
 
     $ ginkgo -v -focus "greeting"
 
     Summarizing 1 Failure:
 
     [Fail] My Go web page when viewing it [It] should display Gopher greeting
-    /Users/ivan/workspace/go-slides/code/05/testing/showcase_test.go:44
+    /Users/ivan/workspace/go-slides/code/04/testing/showcase_test.go:44
 
 * Further options
 
