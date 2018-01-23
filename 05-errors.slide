@@ -6,9 +6,9 @@ ivan.borshukov@chaosgroup.com
 @botu6aa
 
 * Agenda
-- What are errors
 - Types of errors
-- Propagating context information
+- Adding context information
+- Error handling strategies
 - Q&A
 
 * What are errors
@@ -28,7 +28,7 @@ Representing error condition.
     // EOF is the error returned by Read when no more input is available. ...
     var EOF = errors.New("EOF")
 
-- Signal specific condition, e.g. io.EOF, syscall.ENOENT
+- Signal specific condition, e.g. `io.EOF`, `syscall.ENOENT`
 - Caller must compare the result to exact predeclared value
 - Need to be exported, thus become part of the package's API
 - Create a dependency between two packages
@@ -60,7 +60,7 @@ Representing error condition.
         }
         return false
     }
- 
+
 * Opaque errors
 
 - You know nothing but that an error have occurred
@@ -114,6 +114,99 @@ Representing error condition.
 - Preservers the origina error
 
 .play -edit code/05/annotate3.go /START OMIT/,/END OMIT/
+
+* Error handling strategies
+
+* Handling multiple errors
+
+- Naive way
+
+    _, err = fd.Write(p0[a:b])
+    if err != nil {
+        return err
+    }
+    _, err = fd.Write(p1[c:d])
+    if err != nil {
+        return err
+    }
+    _, err = fd.Write(p2[e:f])
+    if err != nil {
+        return err
+    }
+    // and so on
+
+* Handling multiple errors
+
+.image img/errors_in_go.png _ 660
+
+.caption Image from https://imgur.com/WnpMFjX
+
+* Handling multiple errors
+
+- Using closures
+
+    var err error
+    write := func(buf []byte) {
+        if err != nil {
+            return
+        }
+        _, err = w.Write(buf)
+    }
+    write(p0[a:b])
+    write(p1[c:d])
+    write(p2[e:f])
+    // and so on
+    if err != nil {
+        return err
+    }
+
+- Requires all work to be done in a single function
+
+* Handling multiple errors
+
+- Lifting state up
+
+    type errWriter struct {
+        w   io.Writer
+        err error
+    }
+
+    func (ew *errWriter) write(buf []byte) {
+        if ew.err != nil {
+            return
+        }
+        _, ew.err = ew.w.Write(buf)
+    }
+
+Usage:
+
+    ew := &errWriter{w: fd}
+    ew.write(p0[a:b])
+    ew.write(p1[c:d])
+    ew.write(p2[e:f])
+    if ew.err != nil {
+        return ew.err
+    }
+
+* Handling 'defered' errors
+
+.code -numbers code/05/strategies/multiple/main.go /START OMIT/,/END OMIT/
+
+    $ errcheck -verbose ./...
+    main.go:14:16:	(*os.File).Close	defer fd.Close()
+
+What could possibly go wrong
+
+- calling Close twice
+- resource leak
+
+* Handling 'defered' errors
+
+- Using named return values
+
+.code code/05/strategies/multiple/ex2.go /START OMIT/,/END OMIT/
+
+* Whatever you do, always check your errors!
 
 * Q&A
 
