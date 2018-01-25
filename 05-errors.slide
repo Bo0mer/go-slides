@@ -19,11 +19,28 @@ ivan.borshukov@chaosgroup.com
         Error() string
     }
 
-Carried by an interface type.
+Errors are values
 
-Representing error condition.
+- Carried by an interface type
+- Representing error condition
+
+* Handling errors
+
+Option 1
+
+    result, err := operationThatCanFail()
+    if err != nil {
+         // Handle error.
+    }
+
+Option 2
+
+    yolo, _ := operationThatCanFail()
+    // ¯\_(ツ)_/¯
 
 * Sentinel errors
+
+    package io
 
     // EOF is the error returned by Read when no more input is available. ...
     var EOF = errors.New("EOF")
@@ -32,8 +49,25 @@ Representing error condition.
 - Caller must compare the result to exact predeclared value
 - Need to be exported, thus become part of the package's API
 - Create a dependency between two packages
+- Error values can be changed
+
+.play -edit code/05/io.go /START OMIT/,/END OMIT/
+
+* Constant errors
+
+.code code/05/constio.go /START OMIT/,/END OMIT/
+
+- They are immutable
+
+.play -edit code/05/constio1.go /START OMIT/,/END OMIT/
+
+- Error values with the same contents are equal
+
+.play -edit code/05/constio2.go /START OMIT/,/END OMIT/
 
 * Error types
+
+    package url
 
     // Error reports an error and the operation and URL that caused it.
     type Error struct {
@@ -76,7 +110,7 @@ Representing error condition.
             // use val
     }
 
-- Foo's author has the flexibility to change concrete returned values or add annotation
+- Foo's author has the flexibility to change concrete return values or add annotation
 
 * Acting on specific opaque errors
 
