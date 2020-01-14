@@ -1,0 +1,157 @@
+Interfaces: Under the hood
+
+Ivan Borshukov
+Chaos Group
+ivan.borshukov@chaosgroup.com
+@borshukov
+
+* Last pop quiz
+
+.play -edit code/06/quiz.go /START OMIT/,/END OMIT/
+
+- What would the code print?
+
+* Usage
+- First define the interface type
+
+    type Reader interface {
+        Read(p []byte) (n int, err error)
+    }
+
+- Define function taking an interface value
+
+    func ReadAll(r io.Reader) (b []byte, err error) {
+        var buf bytes.Buffer
+        _, err = buf.ReadFrom(r)
+        return buf.Bytes(), err
+    }
+
+* Usage
+- Interfaces let you use duck typing
+- Code that calls ReadAll can pass a value of any type as long as it has Read method with the right signature.
+- Unlike in languages like Python, if you pass a value with the wrong type, you get an error at compile time, not run time.
+
+* Dynamic checks
+- Consider the Stringer interface
+
+    type Stringer interface {
+        String() string
+    }
+
+- You can check dynamically whether a particular interface value has an additional method
+
+    func ToString(any interface{}) string {
+        if v, ok := any.(Stringer); ok {
+            return v.String()
+        }
+        switch v := any.(type) {
+        case int:
+            return strconv.Itoa(v)
+        case string:
+            return v
+        }
+        return "???"
+    }
+
+* How does it work?
+
+    type Binary uint64
+
+    func (i Binary) String() string {
+        return strconv.FormatInt(i.Get(), 2)
+    }
+
+    func (i Binary) Get() uint64 {
+        return uint64(i)
+    }
+
+- A value of type Binary
+
+.image img/interface0.png
+
+* How does it work
+
+- A value of type Stringer
+
+.image img/interface1.png
+
+- Interface values are represented as a pair
+- Pointer to the associated data
+- Pointer to information about the type stored in the interface
+- Assigning b to an interface value of type Stringer sets both words of the interface value
+
+* itable
+
+- The first pointer in the interface value points at the interface table or itable
+- The itable for Stringer holding type Binary holds metadata about the Stringer type
+- The itable for Stringer holding type Binary holds metadata about the Binary type
+- The itable for Stringer holding type Binary lists the methods used to satisfy Stringer
+- Binary's other methods (`Get`) make no appearance in the itable
+
+.image img/interface1.png
+
+* Show me the code
+
+- Code in $GOROOT/src/runtime/runtime2.go
+
+    type iface struct {
+        tab  *itab
+        data unsafe.Pointer
+    }
+
+- `tab` points to the itable structure
+- `data` points to the associated data
+
+.image img/interface1.png
+
+* What's in itab?
+
+    type itab struct {
+        inter *interfacetype
+        _type *_type
+        hash  uint32 // copy of _type.hash. Used for type switches.
+        _     [4]byte
+        fun   [1]uintptr
+    }
+
+- Has a pointer to an `interfacetype`. Describes the type of the interface itself.
+- Embeds a `_type`, which is the internal representation of any Go type within the runtime. The `_type` field describes the type of the value held by the interface, i.e. the value that the data pointer points to.
+- The `fun` array holds the function pointers that make up the virtual/dispatch table of the interface. Calling a method on an interface means calling a specific entry in this table.
+
+* Unpacking interfaces
+
+    type iface struct {
+        itab *struct {
+            inter unsafe.Pointer
+            _type unsafe.Pointer
+            hash  uint32
+            _     [4]byte
+            fun   [1]uintptr
+        }
+        dat unsafe.Pointer
+    }
+
+- Unpack the interface
+
+    var x interface{}
+    v := *(*iface)(unsafe.Pointer(&x))
+
+* Last pop quiz
+
+.play -edit code/06/nilif.go /START1 OMIT/,/END1 OMIT/
+
+* Answer
+
+- An interface value is `nil` when all of its fields are `nil`
+- So, if the itable structure is not empty (there is a concrete type captured), the interface is not `nil`
+
+* Gotchas
+
+.play -edit code/06/nilerror.go /START1 OMIT/,/END1 OMIT/
+
+* Take aways
+- Interfaces let you use duck typing
+- Passing a value with the wrong type results in compilation error, not runtime
+- Interfaces aren't restricted to static checking
+- An interface value is `nil` when no `data` and no type are captured
+- Don't use concrete types for returning error values
